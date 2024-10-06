@@ -16,6 +16,7 @@ const WishlistScreen = (): React.JSX.Element => {
     <FlatList
       data={wishlistProducts || []}
       renderItem={renderProducts}
+      maxToRenderPerBatch={5}
       keyExtractor={product => product.barcode}
       contentContainerStyle={Styles.container}
     />
