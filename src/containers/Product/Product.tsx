@@ -6,6 +6,9 @@ import { Entities } from '../../constants/entities.constant';
 import PVText from '../../components/Text/PVText';
 import { SPACE, ROUNDED } from '../../constants/sizes.constant';
 import { appText } from '../../constants/appText.constant';
+import { useAppDispatch, useAppSelector } from '../../hooks/store.hook';
+import { selectIsInWishlist } from '../../store/selectors/product.selector';
+import { productActions } from '../../store/slices/products.slice';
 
 export type ProductPropType = {
   product: ProductType;
@@ -13,6 +16,11 @@ export type ProductPropType = {
 
 const Product = (props: ProductPropType): React.JSX.Element => {
   const { product } = props;
+
+  const dispatch = useAppDispatch();
+  const existsInWishlist = useAppSelector(state =>
+    selectIsInWishlist(state, product),
+  );
 
   return (
     <View style={Styles.container}>
@@ -42,8 +50,14 @@ const Product = (props: ProductPropType): React.JSX.Element => {
         <View style={Styles.buttonContainer}>
           <TouchableOpacity onPress={toggleWishlist}>
             <View>
-              <PVText style={Styles.wishlistButton}>
-                {appText.ADD_TO_WISHLIST}
+              <PVText
+                style={{
+                  ...Styles.wishlistButton,
+                  color: existsInWishlist ? Colors.DANGER : Colors.PRIMARY,
+                }}>
+                {existsInWishlist
+                  ? appText.REMOVE_FROM_WISHLIST
+                  : appText.ADD_TO_WISHLIST}
               </PVText>
             </View>
           </TouchableOpacity>
@@ -52,7 +66,9 @@ const Product = (props: ProductPropType): React.JSX.Element => {
     </View>
   );
 
-  function toggleWishlist() {}
+  function toggleWishlist() {
+    dispatch(productActions.toggleAddToWishlist({ product }));
+  }
 };
 
 export default memo(

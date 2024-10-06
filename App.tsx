@@ -4,6 +4,8 @@ import { NavigationContainer } from '@react-navigation/native';
 
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import RootNavigator from './src/navigators/RootNavigator';
+import { Provider } from 'react-redux';
+import { store } from './src/store/store';
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
@@ -13,13 +15,15 @@ function App(): React.JSX.Element {
   };
 
   return (
-    <NavigationContainer>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <RootNavigator />
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <StatusBar
+          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+          backgroundColor={backgroundStyle.backgroundColor}
+        />
+        <RootNavigator />
+      </NavigationContainer>
+    </Provider>
   );
 }
 

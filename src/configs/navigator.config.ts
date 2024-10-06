@@ -7,6 +7,7 @@ const RootNavigatorOptions: BottomTabNavigationOptions = {
   tabBarLabelPosition: 'beside-icon',
   headerTintColor: Colors.PRIMARY,
   tabBarActiveTintColor: Colors.PRIMARY,
+  freezeOnBlur: true,
 };
 
 export const NavigatorConfigs = {

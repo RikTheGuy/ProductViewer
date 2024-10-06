@@ -4,23 +4,28 @@ import { productServices } from '../../services/products.service';
 import { ProductType } from '../../types/product';
 import { Colors } from '../../constants/colors.constant';
 import Product from '../../containers/Product/Product';
+import { useAppDispatch, useAppSelector } from '../../hooks/store.hook';
+import { productActions } from '../../store/slices/products.slice';
+import { selectProducts } from '../../store/selectors/product.selector';
 
 const HomeScreen = () => {
+  const dispatch = useAppDispatch();
+  const products = useAppSelector(selectProducts);
+
   const [isLoading, setLoading] = useState(false);
-  const [products, setProducts] = useState<ProductType[]>([]);
 
   // Initial Load
   useEffect(() => {
     fetchPage();
     return () => {
-      setProducts([]);
+      dispatch(productActions.clearProducts());
     };
-  }, []);
+  }, [dispatch]);
 
   const fetchPage = useCallback(async () => {
     setLoading(true);
     const result = await productServices.fetchProducts();
-    setProducts(result.results);
+    dispatch(productActions.loadProducts({ products: result.results }));
     setLoading(false);
   }, []);
 
