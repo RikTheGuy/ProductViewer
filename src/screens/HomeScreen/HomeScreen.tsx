@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import {
   StyleSheet,
+  View,
   FlatList,
   ActivityIndicator,
   RefreshControl,
@@ -13,12 +14,18 @@ import { useAppDispatch, useAppSelector } from '../../hooks/store.hook';
 import { productActions } from '../../store/slices/products.slice';
 import { selectProducts } from '../../store/selectors/product.selector';
 import EmptyListScreen from '../../containers/EmptyListScreen/EmptyListScreen';
+import { appText } from '../../constants/appText.constant';
+import { AxiosError } from 'axios';
+import PVText from '../../components/Text/PVText';
+import debounce from 'lodash/debounce';
+import { DEBOUNCE_RATE } from '../../constants/common.constant';
 
 const HomeScreen = () => {
   const dispatch = useAppDispatch();
   const products = useAppSelector(selectProducts);
 
   const [page, setPage] = useState(1);
+  const [error, setError] = useState('');
   const [isLoading, setLoading] = useState(false);
   const [isRefreshing, setRefreshing] = useState(false);
   const [hasNext, setHasNext] = useState(false);
@@ -30,22 +37,35 @@ const HomeScreen = () => {
       //Reset Loader
       setLoading(false);
       setRefreshing(false);
+      setError('');
       dispatch(productActions.clearProducts());
     };
   }, [dispatch]);
 
   const fetchPage = useCallback(
-    async (pageNumber: number = 1, shouldRefresh = false) => {
+    debounce(async (pageNumber: number = 1, shouldRefresh = false) => {
       setLoading(true);
-      if (shouldRefresh) setRefreshing(true);
-      const result = await productServices.fetchProducts(pageNumber);
-      if (shouldRefresh) dispatch(productActions.clearProducts());
-      dispatch(productActions.loadProducts({ products: result.results }));
-      setPage(pageNumber);
-      setHasNext(result.next);
-      setLoading(false);
-      setRefreshing(false);
-    },
+      if (shouldRefresh) {
+        setRefreshing(true);
+        dispatch(productActions.clearProducts());
+      }
+      try {
+        const result = await productServices.fetchProducts(pageNumber);
+        console.log('Came');
+        setError('');
+        dispatch(productActions.loadProducts({ products: result.results }));
+        setPage(pageNumber);
+        setHasNext(result.next);
+      } catch (error: unknown) {
+        setError(appText.ERROR_GENERIC);
+        if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
+          setError(appText.ERROR_OFFLINE);
+        }
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    }, DEBOUNCE_RATE),
     [dispatch],
   );
 
@@ -64,7 +84,15 @@ const HomeScreen = () => {
       onEndReachedThreshold={1}
       ListEmptyComponent={!isLoading ? <EmptyListScreen /> : <></>}
       ListFooterComponent={
-        isLoading ? <ActivityIndicator color={Colors.PRIMARY} /> : <></>
+        <View>
+          {isLoading ? (
+            <ActivityIndicator color={Colors.PRIMARY} />
+          ) : error ? (
+            <PVText style={Styles.error}>{error}</PVText>
+          ) : (
+            <></>
+          )}
+        </View>
       }
       refreshControl={
         <RefreshControl
@@ -95,5 +123,13 @@ const Styles = StyleSheet.create({
     paddingVertical: 5,
     gap: 5,
     flexGrow: 1,
+  },
+  error: {
+    color: Colors.DANGER,
+    fontStyle: 'italic',
+    textAlign: 'center',
+  },
+  footer: {
+    flex: 1,
   },
 });
