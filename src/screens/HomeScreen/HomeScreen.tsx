@@ -1,14 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import {
-  StyleSheet,
-  FlatList,
-  View,
-  Text,
-  ActivityIndicator,
-} from 'react-native';
+import { StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { productServices } from '../../services/products.service';
 import { ProductType } from '../../types/product';
 import { Colors } from '../../constants/colors.constant';
+import Product from '../../containers/Product/Product';
 
 const HomeScreen = () => {
   const [isLoading, setLoading] = useState(false);
@@ -29,14 +24,14 @@ const HomeScreen = () => {
     setLoading(false);
   }, []);
 
+  const renderProducts = useCallback((item: { item: ProductType }) => {
+    return <Product product={item.item} />;
+  }, []);
+
   return (
     <FlatList
       data={products || []}
-      renderItem={({ item }: { item: ProductType }) => (
-        <View>
-          <Text>{item.name}</Text>
-        </View>
-      )}
+      renderItem={renderProducts}
       keyExtractor={product => product.barcode}
       contentContainerStyle={Styles.container}
       ListFooterComponent={

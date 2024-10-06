@@ -5,6 +5,7 @@ export type ProductType = {
   name: string;
   category: string;
   sub_category: string;
+  division: string;
   brand: string;
   image: string;
 };
