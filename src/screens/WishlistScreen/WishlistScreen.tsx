@@ -4,6 +4,8 @@ import Product from '../../containers/Product/Product';
 import { ProductType } from '../../types/product';
 import { useAppSelector } from '../../hooks/store.hook';
 import { selectWishlist } from '../../store/selectors/product.selector';
+import EmptyListScreen from '../../containers/EmptyListScreen/EmptyListScreen';
+import { appText } from '../../constants/appText.constant';
 
 const WishlistScreen = (): React.JSX.Element => {
   const wishlistProducts = useAppSelector(selectWishlist);
@@ -16,6 +18,7 @@ const WishlistScreen = (): React.JSX.Element => {
     <FlatList
       data={wishlistProducts || []}
       renderItem={renderProducts}
+      ListEmptyComponent={<EmptyListScreen caption={appText.WISHLIST_EMPTY} />}
       maxToRenderPerBatch={5}
       keyExtractor={product => product.barcode}
       contentContainerStyle={Styles.container}
@@ -26,5 +29,5 @@ const WishlistScreen = (): React.JSX.Element => {
 export default WishlistScreen;
 
 const Styles = StyleSheet.create({
-  container: { gap: 5, paddingVertical: 5 },
+  container: { gap: 5, paddingVertical: 5, flexGrow: 1 },
 });

@@ -12,6 +12,7 @@ import Product from '../../containers/Product/Product';
 import { useAppDispatch, useAppSelector } from '../../hooks/store.hook';
 import { productActions } from '../../store/slices/products.slice';
 import { selectProducts } from '../../store/selectors/product.selector';
+import EmptyListScreen from '../../containers/EmptyListScreen/EmptyListScreen';
 
 const HomeScreen = () => {
   const dispatch = useAppDispatch();
@@ -61,6 +62,7 @@ const HomeScreen = () => {
       contentContainerStyle={Styles.container}
       onEndReached={loadMorePages}
       onEndReachedThreshold={1}
+      ListEmptyComponent={!isLoading ? <EmptyListScreen /> : <></>}
       ListFooterComponent={
         isLoading ? <ActivityIndicator color={Colors.PRIMARY} /> : <></>
       }
@@ -92,5 +94,6 @@ const Styles = StyleSheet.create({
   container: {
     paddingVertical: 5,
     gap: 5,
+    flexGrow: 1,
   },
 });
